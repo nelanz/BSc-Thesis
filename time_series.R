@@ -124,7 +124,84 @@ create_acf(Delhi_xts, "New Delhi, India")
 
 #--------------DECOMPOSING
 
-#---- Moving Avarage (MA)
+#---- Moving Avarage (MA) -- identification of trend
+library(stats)
+library(zoo)
+library(tidyr)
+library(RColorBrewer)
+library(scales)
 
+# creating MA model 
+create_MA <- function(City_xts, MA_order) {
+  MA <- stats::filter(City_xts, sides = 2, filter = rep(1/MA_order, MA_order))
+
+  return(MA)
+}
+
+# basic plots
+Ma_Wroclaw_1_month <- create_MA(Wroclaw_xts, 30)
+Ma_Wroclaw_6_months <- create_MA(Wroclaw_xts, 180)
+Ma_Wroclaw_1_year <- create_MA(Wroclaw_xts, 360)
+Ma_Wroclaw_2_years <- create_MA(Wroclaw_xts, 720)
+Ma_Wroclaw_3_years <- create_MA(Wroclaw_xts, 1080)
+
+ts.plot(Wroclaw_xts, col= "grey")
+lines(Ma_Wroclaw_1_month, col="red")
+lines(Ma_Wroclaw_6_months, col = "blue")
+lines(Ma_Wroclaw_1_year, col="green")
+lines(Ma_Wroclaw_2_years, col="magenta")
+lines(Ma_Wroclaw_3_years, col="darkorange")
+
+# function for creating MA model in ggplot2
+create_MA_plot <- function(City_ag, City_name) {
+  City_ts <- City_ag %>%
+    select(YYYYMMDD, T2M) %>%
+    mutate(temp_MA_1 = rollmean(T2M, k=30, fill = NA),
+           temp_MA_2 = rollmean(T2M, k=180, fill = NA),
+           temp_MA_3 = rollmean(T2M, k = 360, fill = NA),
+           temp_MA_4 = rollmean(T2M, k=720, fill=NA),
+           temp_MA_5 = rollmean(T2M, k=1080, fill=NA))
+  
+  MA_plot <- City_ts %>%
+    gather(k, value, T2M:temp_MA_5) %>%
+    ggplot(aes(YYYYMMDD, value, color=k)) +
+    geom_line(size=1.05) +
+    labs(x="Date", title="Simple Moving Avarage Model", subtitle = City_name) +
+    scale_color_brewer(name="2q + 1",
+                       breaks = c('T2M', 'temp_MA_1', 'temp_MA_2', 'temp_MA_3', 'temp_MA_4', 'temp_MA_5'),
+                       labels=c("No MA", "1 month", "6 months", "1 year", "2 years", "3 years"),
+                       palette = 'Set2', 
+                       direction = -1)
+  return(MA_plot)
+}
+
+# zoom of ggplot2 to identify over- and undersmoothing
+zoom_MA_plot <- function(City_ag, City_name, start_date = "2015-01-01", end_date = "2020-01-01") {
+  ylim_min <- min(City_ag$T2M)
+  ylim_max <- max(City_ag$T2M)
+  MA_plot <- create_MA_plot(City_ag, City_name)
+  Ma_plot_zoom <- MA_plot +  coord_cartesian(xlim = c(as.Date(start_date), as.Date(end_date)), ylim = c(ylim_min, ylim_max))
+  
+  return(Ma_plot_zoom)
+}
+
+create_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland")
+zoom_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland")
+zoom_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland", start_date = "2000-01-01", end_date = "2020-01-01")
+
+create_MA_plot(daily_ag_Rykjavik, "Reykjavik, Iceland")
+zoom_MA_plot(daily_ag_Rykjavik, "Reykjavik, Iceland")
+
+#--- more general decomposition
+create_ts <- function(City_ag) {
+  City_ts <- City_ag %>%
+    select(YYYYMMDD, T2M) 
+  
+  return(City_ts)
+}
+
+Wroclaw_ts <- create_ts(daily_ag_Wroclaw)
+
+# stats::decompose(Wroclaw_xts, type = "additive")
 
 
