@@ -124,7 +124,7 @@ create_acf(Delhi_xts, "New Delhi, India")
 
 #--------------DECOMPOSING
 
-#---- Moving Avarage (MA) -- identification of trend
+#---- Moving Average (MA) -- identification of trend
 library(stats)
 library(zoo)
 library(tidyr)
@@ -185,12 +185,49 @@ zoom_MA_plot <- function(City_ag, City_name, start_date = "2015-01-01", end_date
   return(Ma_plot_zoom)
 }
 
+# plot only 3 years MA
+
+create_MA_plot_long_order <- function(City_ag, City_name) {
+  City_ts <- City_ag %>%
+    select(YYYYMMDD, T2M) %>%
+    mutate(temp_MA_5 = rollmean(T2M, k=1080, fill=NA))
+  
+  MA_plot <- City_ts %>%
+    gather(k, value, temp_MA_5) %>%
+    ggplot(aes(YYYYMMDD, value, color=k)) +
+    geom_line(size=1.05) +
+    labs(x="Date", title="Simple Moving Avarage Model", subtitle = City_name) +
+    scale_color_brewer(name="2q + 1",
+                       breaks = c('temp_MA_5'),
+                       labels=c("3 years"),
+                       palette = 'Set2')
+  return(MA_plot)
+}
+
 create_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland")
 zoom_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland")
 zoom_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland", start_date = "2000-01-01", end_date = "2020-01-01")
+create_MA_plot_long_order(daily_ag_Wroclaw, "Wroclaw, Poland")
 
 create_MA_plot(daily_ag_Rykjavik, "Reykjavik, Iceland")
 zoom_MA_plot(daily_ag_Rykjavik, "Reykjavik, Iceland")
+create_MA_plot_long_order(daily_ag_Rykjavik, "Reykjavik, Iceland")
+
+create_MA_plot(daily_ag_Melbourne, "Melbourne, Australia")
+zoom_MA_plot(daily_ag_Melbourne, "Melbourne, Australia")
+create_MA_plot_long_order(daily_ag_Melbourne, "Melbourne, Australia")
+
+create_MA_plot(daily_ag_Rio, "Rio de Janeiro, Brasil")
+create_MA_plot_long_order(daily_ag_Rio, "Rio de Janeiro, Brasil")
+
+#check with the oder method
+Rio_Ma <- create_MA(City_xts = Rio_xts, MA_order = 1080)
+plot.ts(Rio_Ma)
+Rio_ts <- create_ts(daily_ag_Rio)
+Rio_Ma_2 <- create_MA(Rio_ts$T2M, MA_order = 1080)
+plot.ts(Rio_Ma_2)
+
+
 
 #--- more general decomposition
 create_ts <- function(City_ag) {
@@ -204,4 +241,4 @@ Wroclaw_ts <- create_ts(daily_ag_Wroclaw)
 
 # stats::decompose(Wroclaw_xts, type = "additive")
 
-
+frequency(Wroclaw_xts)
