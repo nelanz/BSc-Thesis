@@ -228,8 +228,10 @@ Rio_Ma_2 <- create_MA(Rio_ts$T2M, MA_order = 1080)
 plot.ts(Rio_Ma_2)
 
 
+#---seasonal trend using linear model
+library(forecast)
+library(tsbox)
 
-#--- more general decomposition
 create_ts <- function(City_ag) {
   City_ts <- City_ag %>%
     select(YYYYMMDD, T2M) 
@@ -238,6 +240,19 @@ create_ts <- function(City_ag) {
 }
 
 Wroclaw_ts <- create_ts(daily_ag_Wroclaw)
+
+
+Wroclaw_ts <- ts_ts(Wroclaw_ts)
+is.ts(Wroclaw_ts)
+
+Wroclaw_seasonal_trend <- tslm(Wroclaw_ts ~ trend + season)
+summary(Wroclaw_seasonal_trend)
+
+plot(Wroclaw_ts, col="grey")
+lines(fitted(Wroclaw_seasonal_trend), col="green")
+
+#--- more general decomposition
+
 
 # stats::decompose(Wroclaw_xts, type = "additive")
 
