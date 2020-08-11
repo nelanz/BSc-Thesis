@@ -54,10 +54,24 @@ daily_ag_Delhi <- get_power(
 
 
 
-#---------create time series fot daily temperature in each city
+#---------create time series for daily temperature in each city
+
+daily_ag_Wroclaw_data <- daily_ag_Wroclaw %>%
+  filter(DD == 29 & MM == 2)
+
+daily_ag_Wroclaw %>%
+  filter(!YYYYMMDD %in% daily_ag_Wroclaw_data$YYYYMMDD)
+
+subset(d)
 
 create_xts <- function(data) {
-  return(xts(x = data$T2M, order.by = data$YYYYMMDD))
+  data_feb <- data %>%
+    filter(MM == 2 & DD == 29)
+  
+  data <- data %>%
+    filter(!YYYYMMDD %in% data_feb$YYYYMMDD)
+  
+  return(xts(x = data$T2M, order.by = data$YYYYMMDD, frequency = 365))
 }
 
 Wroclaw_xts <- create_xts(daily_ag_Wroclaw)
