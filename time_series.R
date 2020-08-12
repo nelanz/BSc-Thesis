@@ -11,28 +11,28 @@ library(ggfortify)
 daily_ag_Wroclaw <- get_power(
                       community = 'AG',
                       lonlat = c(17.0385, 51.1079),
-                      dates = c("01.01.1985", "01.01.2020"),
+                      dates = c("01.01.1985", "31.12.2019"),
                       pars = c('T2M'),
                       temporal_average = "DAILY")
 #Reykjavik, Iceland
 daily_ag_Rykjavik <- get_power(
                       community = 'AG',
                       lonlat = c(-21.827774, 64.128288),
-                      dates = c("01.01.1985", "01.01.2020"),
+                      dates = c("01.01.1985", "31.12.2019"),
                       pars = c('T2M'),
                       temporal_average = "DAILY")
 # Melbourne, Australia
 daily_ag_Melbourne <- get_power(
                         community = 'AG',
                         lonlat = c(144.963058, -37.813629),
-                        dates = c("01.01.1985", "01.01.2020"),
+                        dates = c("01.01.1985", "31.12.2019"),
                         pars = c('T2M'),
                         temporal_average = "DAILY")
 # Rio de Janeiro, Brazil
 daily_ag_Rio <- get_power(
                   community = 'AG',
                   lonlat = c(-43.172897, -22.906847),
-                  dates = c("01.01.1985", "01.01.2020"),
+                  dates = c("01.01.1985", "31.12.2019"),
                   pars = c('T2M'),
                   temporal_average = "DAILY")
 
@@ -40,7 +40,7 @@ daily_ag_Rio <- get_power(
 daily_ag_NYC <- get_power(
                   community = 'AG',
                   lonlat = c(-74.005974, 40.712776),
-                  dates = c("01.01.1985", "01.01.2020"),
+                  dates = c("01.01.1985", "31.12.2019"),
                   pars = c('T2M'),
                   temporal_average = "DAILY")
 
@@ -48,7 +48,7 @@ daily_ag_NYC <- get_power(
 daily_ag_Delhi <- get_power(
                     community = 'AG',
                     lonlat = c(77.216721, 28.6448),
-                    dates = c("01.01.1985", "01.01.2020"),
+                    dates = c("01.01.1985", "31.12.2019"),
                     pars = c('T2M'),
                     temporal_average = "DAILY")
 
@@ -247,11 +247,16 @@ library(forecast)
 library(tsbox)
 
 create_ts <- function(City_ag) {
+  data_feb <- City_ag %>%
+    filter(MM == 2 & DD == 29)
+  
   City_ts <- City_ag %>%
-    select(YYYYMMDD, T2M) 
+    select(YYYYMMDD, T2M) %>%
+    filter(!YYYYMMDD %in% data_feb$YYYYMMDD)
   
   return(City_ts)
 }
+
 
 Wroclaw_ts <- create_ts(daily_ag_Wroclaw)
 

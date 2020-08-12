@@ -2,29 +2,59 @@ library(forecast)
 library(tsbox)
 
 # --- time series decomposition and forecasting
-create_ts <- function(City_ag) {
-  City_ts <- City_ag %>%
-    select(YYYYMMDD, T2M) 
+
+#------ step by step decomposition
+
+daily_ag_Wroclaw_feb <- daily_ag_Wroclaw %>%
+  filter(DD == 29 & MM == 2)
+
+daily_ag_Wroclaw_no_feb <- daily_ag_Wroclaw %>%
+  filter(!YYYYMMDD %in% daily_ag_Wroclaw_data$YYYYMMDD) %>%
+  select(YYYYMMDD, T2M)
+
+Wroclaw_ts_1 <- ts(daily_ag_Wroclaw_no_feb$T2M, start = 1985, frequency = 365)
+
+frequency(Wroclaw_ts_1)
+
+
+# trend
+create_MA <- function(City_ts, MA_order) {
+  MA <- stats::filter(City_ts, sides = 2, filter = rep(1/MA_order, MA_order))
   
-  return(City_ts)
+  return(MA)
 }
 
-Wroclaw_ts <- create_ts(daily_ag_Wroclaw)
+Ma_Wroclaw_1_year_ts <- create_MA(Wroclaw_ts_1, 360)
+ts.plot(Wroclaw_ts_1, col= "grey")
+lines(Ma_Wroclaw_1_year_ts, col="green")
 
+# detrend time series
 
-Wroclaw_ts <- ts_ts(Wroclaw_xts)
+detrend_Wroclaw_ts <- Wroclaw_ts_1 - Ma_Wroclaw_1_year_ts
+ts.plot(detrend_Wroclaw_ts)
 
-Wroclaw_ts <- as.ts(Wroclaw_ts, frequency = 365)
+# average the seasonality
 
-model1 <- tslm(Wroclaw_ts ~ trend + season)
+matrix_Wroclaw_ts <- t(matrix(data= detrend_Wroclaw_ts, nrow = 365))
+seasonal_Wroclaw <- colMeans(matrix_Wroclaw_ts, na.rm = T)
+ts.plot(rep(seasonal_Wroclaw, 34))
 
-summary(model1)
+# random noise
+random_Wroclaw <- Wroclaw_ts_1 - Ma_Wroclaw_1_year_ts - seasonal_Wroclaw
+ts.plot(random_Wroclaw)
 
-to.monthly(Wroclaw_xts, indexAt = 'yearmon')
+# reconstruct
+recomposed_Wroclaw <- Wroclaw_ts_1 + Ma_Wroclaw_1_year_ts + seasonal_Wroclaw
+ts.plot(recomposed_Wroclaw)
 
-Wroclaw_D1 <- diff(Wroclaw_xts, differences = 1)
+# ------one function for decomposition
+decompose_Wroclaw <-  decompose(Wroclaw_ts_1, "additive")
 
-autoplot(Wroclaw_D1)
-autoplot(Wroclaw_xts)
+plot(decompose_Wroclaw)
 
-Wroclaw_decomposed <- diff(Wroclaw_xts, "periodic")
+stl_Wroclaw <- stl(Wroclaw_ts_1, "periodic")
+plot(stl_Wroclaw)
+
+# autocorrelation
+acf(as.ts(stl_Wroclaw$time.series[,3]), plot = T, na.action = na.pass, lag.max = 365)
+
