@@ -5,6 +5,15 @@ library(ggplot2)
 library(gridExtra)
 library(grid)
 library(ggfortify)
+library(ggsci)
+library(scales)
+library(RColorBrewer)
+library(forecast)
+library(tsbox)
+
+brewer.pal(9, "Purples")
+
+show_col(pal_npg("nrc")(10))
 
 #-------- several cities from around the world and their daily temperature in the last 35 years
 # Wroclaw, Poland
@@ -56,13 +65,13 @@ daily_ag_Delhi <- get_power(
 
 #---------create time series for daily temperature in each city
 
-daily_ag_Wroclaw_data <- daily_ag_Wroclaw %>%
-  filter(DD == 29 & MM == 2)
-
-daily_ag_Wroclaw %>%
-  filter(!YYYYMMDD %in% daily_ag_Wroclaw_data$YYYYMMDD)
-
-subset(d)
+# daily_ag_Wroclaw_data <- daily_ag_Wroclaw %>%
+#   filter(DD == 29 & MM == 2)
+# 
+# daily_ag_Wroclaw %>%
+#   filter(!YYYYMMDD %in% daily_ag_Wroclaw_data$YYYYMMDD)
+# 
+# subset(d)
 
 create_xts <- function(data) {
   data_feb <- data %>%
@@ -83,26 +92,32 @@ Delhi_xts <- create_xts(daily_ag_Delhi)
 
 #---------- data exploration
 
-plot_Wroclaw <- autoplot(Wroclaw_xts, ts.col = 'purple') + 
-  labs(x = 'Time', y = 'Temperature', title = 'Wroclaw, Poland')
+plot_Wroclaw <- autoplot(Wroclaw_xts, ts.col = '#807DBA') + 
+  labs(x = 'Time', y = 'Temperature', title = 'Wroclaw, Poland') +
+  ylim(c(-20, 40))
 
-plot_Reykjavik <- autoplot(Reykjavik_xts, ts.col = 'purple')  + 
-  labs(x = 'Time', y = 'Temperature', title = 'Reykjavik, Iceland')
+plot_Reykjavik <- autoplot(Reykjavik_xts, ts.col = '#807DBA')  + 
+  labs(x = 'Time', y = 'Temperature', title = 'Reykjavik, Iceland') +
+  ylim(c(-20, 40))
 
-plot_Melbourne <- autoplot(Melbourne_xts, ts.col = 'purple') + 
-  labs(x = 'Time', y = 'Temperature', title = ' Melbourne, Australia')
+plot_Melbourne <- autoplot(Melbourne_xts, ts.col = '#807DBA') + 
+  labs(x = 'Time', y = 'Temperature', title = ' Melbourne, Australia') +
+  ylim(c(-20, 40))
 
-plot_Rio <- autoplot(Rio_xts, ts.col = 'purple') + 
-  labs(x = 'Time', y = 'Temperature', title = 'Rio de Janeiro, Brasil')
+plot_Rio <- autoplot(Rio_xts, ts.col = '#807DBA') + 
+  labs(x = 'Time', y = 'Temperature', title = 'Rio de Janeiro, Brasil') +
+  ylim(c(-20, 40))
 
-plot_NYC <- autoplot(NYC_xts, ts.col = 'purple') + 
-  labs(x = 'Time', y = 'Temperature', title = 'New York City, USA')
+plot_NYC <- autoplot(NYC_xts, ts.col = '#807DBA') + 
+  labs(x = 'Time', y = 'Temperature', title = 'New York City, USA') +
+  ylim(c(-20, 40))
 
-plot_Delhi <- autoplot(Delhi_xts, ts.col = 'purple') + 
-  labs(x = 'Time', y = 'Temperature', title = 'New Delhi, India')
+plot_Delhi <- autoplot(Delhi_xts, ts.col = '#807DBA') + 
+  labs(x = 'Time', y = 'Temperature', title = 'New Delhi, India') +
+  ylim(c(-20, 40))
 
 grid.arrange(plot_Wroclaw, plot_Reykjavik, plot_Melbourne, plot_Rio, plot_NYC, plot_Delhi, 
-             ncol=2, top = textGrob("Daily temperature, 01.01.1985 - 01.01.2020", gp=gpar(fontsize=15, fontface='bold')))
+             ncol=2, top = textGrob("Daily temperature, 01.01.1985 - 31.12.2019", gp=gpar(fontsize=15, fontface='bold')))
 
 start(wroclaw_xts)
 end(wroclaw_xts)
@@ -115,7 +130,7 @@ cycle(wroclaw_xts)
 #--- Wroclaw, Poland
 
 create_acf <- function(City_xts, City_name) {
-  title <- paste("Autocorrelation of temperature in ", City_name)
+  # title <- paste("Autocorrelation of the daily temperature in ", City_name)
   
   par(mfrow=c(3,2))
   
@@ -126,7 +141,8 @@ create_acf <- function(City_xts, City_name) {
   acf_10_years <- acf(City_xts, lag.max = 365 * 10, plot = T, main = "10 years")
   acf_15_years <- acf(City_xts, lag.max = 365 * 20, plot = T, main = "20 years")
   
-  mtext(title, outer = T, cex = 1, line = -1.5, font=2)
+  # mtext(title, outer = T, cex = 1, line = -1.5, font=2)
+  
 }
 
 create_acf(Wroclaw_xts, 'Wroclaw, Poland')
@@ -243,8 +259,7 @@ plot.ts(Rio_Ma_2)
 
 
 #---seasonal trend using linear model
-library(forecast)
-library(tsbox)
+
 
 create_ts <- function(City_ag) {
   data_feb <- City_ag %>%
