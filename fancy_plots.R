@@ -1,8 +1,3 @@
-library(lattice)
-library(lubridate)
-library(stats)
-library(directlabels)
-
 xyplot(Melbourne_xts, strip = T, cut = list(number = 3, overlap = 0.5))
 
 

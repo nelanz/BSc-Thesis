@@ -1,19 +1,11 @@
-library(nasapower)
-library(xts)
-library(dplyr)
-library(ggplot2)
-library(gridExtra)
-library(grid)
-library(ggfortify)
-library(ggsci)
-library(scales)
-library(RColorBrewer)
-library(forecast)
-library(tsbox)
+par(mfrow=c(1,1))
 
-brewer.pal(9, "Purples")
+brewer.pal(9, "Paired")
+
+display.brewer.pal(9, "Paired")
 
 show_col(pal_npg("nrc")(10))
+
 
 #-------- several cities from around the world and their daily temperature in the last 35 years
 # Wroclaw, Poland
@@ -92,27 +84,27 @@ Delhi_xts <- create_xts(daily_ag_Delhi)
 
 #---------- data exploration
 
-plot_Wroclaw <- autoplot(Wroclaw_xts, ts.col = '#807DBA') + 
+plot_Wroclaw <- autoplot(Wroclaw_xts, ts.col = '#1F78B4') + 
   labs(x = 'Time', y = 'Temperature', title = 'Wroclaw, Poland') +
   ylim(c(-20, 40))
 
-plot_Reykjavik <- autoplot(Reykjavik_xts, ts.col = '#807DBA')  + 
+plot_Reykjavik <- autoplot(Reykjavik_xts, ts.col = '#1F78B4')  + 
   labs(x = 'Time', y = 'Temperature', title = 'Reykjavik, Iceland') +
   ylim(c(-20, 40))
 
-plot_Melbourne <- autoplot(Melbourne_xts, ts.col = '#807DBA') + 
+plot_Melbourne <- autoplot(Melbourne_xts, ts.col = '#1F78B4') + 
   labs(x = 'Time', y = 'Temperature', title = ' Melbourne, Australia') +
   ylim(c(-20, 40))
 
-plot_Rio <- autoplot(Rio_xts, ts.col = '#807DBA') + 
+plot_Rio <- autoplot(Rio_xts, ts.col = '#1F78B4') + 
   labs(x = 'Time', y = 'Temperature', title = 'Rio de Janeiro, Brasil') +
   ylim(c(-20, 40))
 
-plot_NYC <- autoplot(NYC_xts, ts.col = '#807DBA') + 
+plot_NYC <- autoplot(NYC_xts, ts.col = '#1F78B4') + 
   labs(x = 'Time', y = 'Temperature', title = 'New York City, USA') +
   ylim(c(-20, 40))
 
-plot_Delhi <- autoplot(Delhi_xts, ts.col = '#807DBA') + 
+plot_Delhi <- autoplot(Delhi_xts, ts.col = '#1F78B4') + 
   labs(x = 'Time', y = 'Temperature', title = 'New Delhi, India') +
   ylim(c(-20, 40))
 
@@ -168,12 +160,6 @@ create_pacf(Wroclaw_xts)
 #--------------DECOMPOSING
 
 #---- Moving Average (MA) -- identification of trend
-library(stats)
-library(zoo)
-library(tidyr)
-library(RColorBrewer)
-library(scales)
-
 # creating MA model 
 create_MA <- function(City_xts, MA_order) {
   MA <- stats::filter(City_xts, sides = 2, filter = rep(1/MA_order, MA_order))
@@ -197,6 +183,12 @@ lines(Ma_Wroclaw_3_years, col="darkorange")
 
 # function for creating MA model in ggplot2
 create_MA_plot <- function(City_ag, City_name) {
+  data_feb <- City_ag %>%
+    filter(MM == 2 & DD == 29)
+  
+  City_ag <- City_ag %>%
+    filter(!YYYYMMDD %in% data_feb$YYYYMMDD)
+  
   City_ts <- City_ag %>%
     select(YYYYMMDD, T2M) %>%
     mutate(temp_MA_1 = rollmean(T2M, k=30, fill = NA),
@@ -209,12 +201,12 @@ create_MA_plot <- function(City_ag, City_name) {
     gather(k, value, T2M:temp_MA_5) %>%
     ggplot(aes(YYYYMMDD, value, color=k)) +
     geom_line(size=1.05) +
-    labs(x="Date", title="Simple Moving Avarage Model", subtitle = City_name) +
-    scale_color_brewer(name="2q + 1",
+    labs(x="Date", y ="Temperature", title="Simple Moving Avarage", subtitle = City_name) +
+    scale_color_brewer(name="q parameter",
                        breaks = c('T2M', 'temp_MA_1', 'temp_MA_2', 'temp_MA_3', 'temp_MA_4', 'temp_MA_5'),
                        labels=c("No MA", "1 month", "6 months", "1 year", "2 years", "3 years"),
                        palette = 'Set2', 
-                       direction = -1)
+                       direction = -1) 
   return(MA_plot)
 }
 
@@ -231,6 +223,12 @@ zoom_MA_plot <- function(City_ag, City_name, start_date = "2015-01-01", end_date
 # plot only 3 years MA
 
 create_MA_plot_long_order <- function(City_ag, City_name) {
+  data_feb <- City_ag %>%
+    filter(MM == 2 & DD == 29)
+  
+  City_ag <- City_ag %>%
+    filter(!YYYYMMDD %in% data_feb$YYYYMMDD)
+  
   City_ts <- City_ag %>%
     select(YYYYMMDD, T2M) %>%
     mutate(temp_MA_5 = rollmean(T2M, k=1080, fill=NA))
@@ -239,8 +237,8 @@ create_MA_plot_long_order <- function(City_ag, City_name) {
     gather(k, value, temp_MA_5) %>%
     ggplot(aes(YYYYMMDD, value, color=k)) +
     geom_line(size=1.05) +
-    labs(x="Date", title="Simple Moving Avarage Model", subtitle = City_name) +
-    scale_color_brewer(name="2q + 1",
+    labs(x="Date", y ="Temperature", title="Simple Moving Avarage", subtitle = City_name) +
+    scale_color_brewer(name="q parameter",
                        breaks = c('temp_MA_5'),
                        labels=c("3 years"),
                        palette = 'Set2')
@@ -249,14 +247,14 @@ create_MA_plot_long_order <- function(City_ag, City_name) {
 
 create_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland")
 zoom_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland")
-zoom_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland", start_date = "2000-01-01", end_date = "2020-01-01")
+zoom_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland", start_date = "2000-01-01", end_date = "2019-12-31")
 create_MA_plot_long_order(daily_ag_Wroclaw, "Wroclaw, Poland")
 
 create_MA_plot(daily_ag_Rykjavik, "Reykjavik, Iceland")
 zoom_MA_plot(daily_ag_Rykjavik, "Reykjavik, Iceland")
 create_MA_plot_long_order(daily_ag_Rykjavik, "Reykjavik, Iceland")
 
-create_MA_plot(daily_ag_Melbourne, "Melbourne, Australia")
+create_MA_plot(daily_ag_Melbourne, "Melbourne, Australia") + ylim(c(-20, 30))
 zoom_MA_plot(daily_ag_Melbourne, "Melbourne, Australia")
 create_MA_plot_long_order(daily_ag_Melbourne, "Melbourne, Australia")
 
@@ -266,9 +264,6 @@ create_MA_plot_long_order(daily_ag_Rio, "Rio de Janeiro, Brasil")
 #check with the oder method
 Rio_Ma <- create_MA(City_xts = Rio_xts, MA_order = 1080)
 plot.ts(Rio_Ma)
-Rio_ts <- create_ts(daily_ag_Rio)
-Rio_Ma_2 <- create_MA(Rio_ts$T2M, MA_order = 1080)
-plot.ts(Rio_Ma_2)
 
 
 #---seasonal trend using linear model

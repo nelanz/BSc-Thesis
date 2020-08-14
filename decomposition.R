@@ -1,6 +1,3 @@
-library(forecast)
-library(tsbox)
-
 # --- time series decomposition and forecasting
 
 #------ step by step decomposition
