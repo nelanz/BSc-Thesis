@@ -38,3 +38,6 @@ Delhi_seasonal <- seasonal_plots(Delhi_xts, "New Delhi, India")
 grid.arrange(Wroclaw_seasonal, Reykjavik_seasonal, Melbourne_seasonal, Rio_seasonal, NYC_seasonal, Delhi_seasonal, 
              ncol=2, top = textGrob("Seasonal plots of daily temperature, 01.01.1985 - 31.12.2019", 
                                     gp=gpar(fontsize=15, fontface='bold')))
+
+
+
