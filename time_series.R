@@ -245,14 +245,25 @@ create_MA_plot_long_order <- function(City_ag, City_name) {
   return(MA_plot)
 }
 
+zoom_MA_plot_long_order <- function(City_ag, City_name, start_date = "2015-01-01", end_date = "2020-01-01") {
+  ylim_min <- min(City_ag$T2M)
+  ylim_max <- max(City_ag$T2M)
+  MA_plot <- create_MA_plot_long_order(City_ag, City_name)
+  Ma_plot_zoom <- MA_plot +  coord_cartesian(xlim = c(as.Date(start_date), as.Date(end_date)), ylim = c(ylim_min, ylim_max))
+  
+  return(Ma_plot_zoom)
+}
+
 create_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland")
 zoom_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland")
 zoom_MA_plot(daily_ag_Wroclaw, "Wroclaw, Poland", start_date = "2000-01-01", end_date = "2019-12-31")
 create_MA_plot_long_order(daily_ag_Wroclaw, "Wroclaw, Poland")
 
 create_MA_plot(daily_ag_Rykjavik, "Reykjavik, Iceland")
-zoom_MA_plot(daily_ag_Rykjavik, "Reykjavik, Iceland")
+zoom_MA_plot(daily_ag_Rykjavik, "Reykjavik, Iceland", start_date = "2001-01-01", end_date = "2005-12-31")
 create_MA_plot_long_order(daily_ag_Rykjavik, "Reykjavik, Iceland")
+
+zoom_MA_plot_long_order(daily_ag_Rykjavik, "Reykjavik, Iceland", start_date = "2000-01-01", end_date = "2010-12-31" )
 
 create_MA_plot(daily_ag_Melbourne, "Melbourne, Australia") + ylim(c(-20, 30))
 zoom_MA_plot(daily_ag_Melbourne, "Melbourne, Australia")
