@@ -54,8 +54,8 @@ ts.plot(rep(seasonal_Wroclaw, 34))
 
 matrix_Melbourne_ts <- t(matrix(data= detrend_Melbourne_ts, nrow = 365))
 seasonal_Melbourne <- colMeans(matrix_Melbourne_ts, na.rm = T)
-# autoplot(as.ts(seasonal_Melbourne)
-ts.plot(rep(seasonal_Melbourne, 34))
+# autoplot(as.ts(seasonal_Melbourne))
+ts.plot(rep(seasonal_Melbourne, 35))
 
 # random noise
 random_Wroclaw <- Wroclaw_ts_1 - Ma_Wroclaw_1_year_ts - seasonal_Wroclaw
@@ -75,8 +75,20 @@ decompose_Wroclaw <-  decompose(Wroclaw_ts_1, "additive")
 
 plot(decompose_Wroclaw)
 
+autoplot(decompose_Wroclaw$seasonal, colour = "purple", size = 1) +
+  labs(title = "Seasonal component", subtitle = "Wroclaw, Poland", x = "Date", y = "Temperature") 
+
+autoplot(decompose_Wroclaw$random, colour = "#6E016B") +
+  labs(title = "Random fluctuations", subtitle = "Wroclaw, Poland", x = "Date", y = "Temperature") 
+
+acf(decompose_Wroclaw$random, na.action = na.pass)
+acf(random_Wroclaw, na.action = na.pass)
+
 stl_Wroclaw <- stl(Wroclaw_ts_1, "periodic")
 plot(stl_Wroclaw)
+
+decompose_Melbourne <- decompose(Melbourne_ts_1, "additive")
+autoplot(decompose_Melbourne$seasonal)
 
 # autocorrelation
 acf(as.ts(stl_Wroclaw$time.series[,3]), plot = T, na.action = na.pass, lag.max = 365)
