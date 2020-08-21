@@ -1,6 +1,6 @@
-# --- time series decomposition and forecasting
+# --- time series decomposition 
 
-#------ step by step decomposition
+#---------- step by step decomposition
 
 daily_ag_Wroclaw_feb <- daily_ag_Wroclaw %>%
   filter(DD == 29 & MM == 2)
@@ -46,7 +46,7 @@ ts.plot(detrend_Wroclaw_ts)
 detrend_Melbourne_ts <- Melbourne_ts_1 - Ma_Melbourne_1_ts
 ts.plot(detrend_Melbourne_ts)
 
-# average the seasonality
+# seasonal factor
 
 matrix_Wroclaw_ts <- t(matrix(data= detrend_Wroclaw_ts, nrow = 365))
 seasonal_Wroclaw <- colMeans(matrix_Wroclaw_ts, na.rm = T)
@@ -70,7 +70,7 @@ acf(as.ts(random_Melbourne), plot = T, na.action = na.pass, lag.max = 300)
 recomposed_Wroclaw <- Wroclaw_ts_1 + Ma_Wroclaw_1_year_ts + seasonal_Wroclaw
 ts.plot(recomposed_Wroclaw)
 
-# ------one function for decomposition
+#----------one function for decomposition
 decompose_Wroclaw <-  decompose(Wroclaw_ts_1, "additive")
 
 plot(decompose_Wroclaw)
@@ -81,15 +81,14 @@ autoplot(decompose_Wroclaw$seasonal, colour = "purple", size = 1) +
 autoplot(decompose_Wroclaw$random, colour = "#6E016B") +
   labs(title = "Random fluctuations", subtitle = "Wroclaw, Poland", x = "Date", y = "Temperature") 
 
-acf(decompose_Wroclaw$random, na.action = na.pass)
-acf(random_Wroclaw, na.action = na.pass)
+par(mfrow = c(1,2))
+acf(ts(decompose_Wroclaw$random, frequency = 1), na.action = na.pass, lag.max = 30,
+    main = "30 days")
+acf(ts(decompose_Wroclaw$random, frequency = 1), na.action = na.pass, lag.max = 365, main = "1 year", font = 1)
 
-stl_Wroclaw <- stl(Wroclaw_ts_1, "periodic")
-plot(stl_Wroclaw)
+mtext("ACF of random fluctuations in Wroclaw, Poland", outer = T, cex = 1, line = -1, font=2)
 
 decompose_Melbourne <- decompose(Melbourne_ts_1, "additive")
 autoplot(decompose_Melbourne$seasonal)
 
-# autocorrelation
-acf(as.ts(stl_Wroclaw$time.series[,3]), plot = T, na.action = na.pass, lag.max = 365)
 
