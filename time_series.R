@@ -231,7 +231,7 @@ create_MA_plot_long_order <- function(City_ag, City_name) {
   
   City_ts <- City_ag %>%
     select(YYYYMMDD, T2M) %>%
-    mutate(temp_MA_5 = rollmean(T2M, k=1080, fill=NA))
+    mutate(temp_MA_5 = rollmean(T2M, k=360, fill=NA))
   
   MA_plot <- City_ts %>%
     gather(k, value, temp_MA_5) %>%
@@ -240,7 +240,7 @@ create_MA_plot_long_order <- function(City_ag, City_name) {
     labs(x="Date", y ="Temperature", title="Simple Moving Avarage", subtitle = City_name) +
     scale_color_brewer(name="q parameter",
                        breaks = c('temp_MA_5'),
-                       labels=c("3 years"),
+                       labels=c("1 year"),
                        palette = 'Set2')
   return(MA_plot)
 }
