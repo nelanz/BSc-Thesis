@@ -54,17 +54,28 @@ matrix_Wroclaw_ts <- t(matrix(data= Wroclaw_ts_1, nrow = 365))
 seasonal_Wroclaw <- colMeans(matrix_Wroclaw_ts, na.rm = T)
 ts.plot(rep(seasonal_Wroclaw, 34))
 
+autoplot(as.ts(rep(seasonal_Wroclaw, 35), frequency = 365), colour = "purple", size = 1)
+
 matrix_Melbourne_ts <- t(matrix(data= Melbourne_ts_1, nrow = 365))
 seasonal_Melbourne <- colMeans(matrix_Melbourne_ts, na.rm = T)
 # autoplot(as.ts(seasonal_Melbourne))
-ts.plot(rep(seasonal_Melbourne, 35))
+ts.plot(rep(seasonal_Melbourne, 34))
 
 # random noise
 random_Wroclaw <- Wroclaw_ts_1 - seasonal_Wroclaw
 ts.plot(random_Wroclaw)
+
+autoplot(random_Wroclaw, colour = "#6E016B") +
+  labs(title = "Random noise component", subtitle = "Wroclaw, Poland", x = "Date", y = "Temperature")
+  
 random_Wroclaw_ts <- as.ts(random_Wroclaw, frequency = 365)
-Acf(random_Wroclaw_ts, plot = T, na.action = na.pass, lag.max = 365)
-Pacf(random_Wroclaw_ts, lag.max = 30)
+
+par(mfrow = c(1, 2))
+Acf(random_Wroclaw_ts, plot = T, na.action = na.pass, lag.max = 365, main = "ACF for random noise component, lag.max = 365")
+Pacf(random_Wroclaw_ts, lag.max = 15, main = "PACF for random noise component, lag.max = 15", font = 1)
+mtext("Random noise component in Wroclaw, Poland", outer = T, cex = 1, line = -1, font=2)
+
+par(mfrow = c(1,1))
 
 
 random_Melbourne <- Melbourne_ts_1 - seasonal_Melbourne
@@ -84,7 +95,7 @@ autoplot(decompose_Wroclaw$seasonal, colour = "purple", size = 1) +
   labs(title = "Seasonal component", subtitle = "Wroclaw, Poland", x = "Date", y = "Temperature") 
 
 autoplot(decompose_Wroclaw$random, colour = "#6E016B") +
-  labs(title = "Random fluctuations", subtitle = "Wroclaw, Poland", x = "Date", y = "Temperature") 
+  labs(title = "Random noise component", subtitle = "Wroclaw, Poland", x = "Date", y = "Temperature") 
 
 par(mfrow = c(1,2))
 Acf(ts(decompose_Wroclaw$random, frequency = 1), na.action = na.pass, lag.max = 30,
