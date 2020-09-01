@@ -145,14 +145,14 @@ create_acf(NYC_xts, "New York City, USA")
 create_acf(Delhi_xts, "New Delhi, India")
 
 create_pacf <- function(City_xts) {
-  par(mfrow=c(3,2))
+  par(mfrow=c(1,2))
   
-  pacf_30_days <- forecast::Pacf(City_xts, lag.max = 30, plot = T, main = "30 days")
-  pacf_6_months <- forecast::Pacf(City_xts, lag.max = 30 * 6, plot = T, main = "6 months")
-  pacf_1_year <- forecast::Pacf(City_xts, lag.max = 365, plot = T, main = "1 year")
-  pacf_5_years <- forecast::Pacf(City_xts, lag.max = 365 * 5, plot = T, main = "5 years")
-  pacf_10_years <- forecast::Pacf(City_xts, lag.max = 365 * 10, plot = T, main = "10 years")
-  pacf_15_years <- forecast::Pacf(City_xts, lag.max = 365 * 20, plot = T, main = "20 years")
+  pacf_30_days <- forecast::Pacf(City_xts, lag.max = 15, plot = T, main = "15 days")
+  pacf_6_months <- forecast::Pacf(City_xts, lag.max = 30, plot = T, main = "30 days")
+  # pacf_1_year <- forecast::Pacf(City_xts, lag.max = 365, plot = T, main = "1 year")
+  # pacf_5_years <- forecast::Pacf(City_xts, lag.max = 365 * 5, plot = T, main = "5 years")
+  # pacf_10_years <- forecast::Pacf(City_xts, lag.max = 365 * 10, plot = T, main = "10 years")
+  # pacf_15_years <- forecast::Pacf(City_xts, lag.max = 365 * 20, plot = T, main = "20 years")
 }
 
 create_pacf(Wroclaw_xts)
