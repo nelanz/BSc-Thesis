@@ -44,7 +44,7 @@ Wroclaw_seasonal <- get_seasonal_component(Wroclaw_ts_1)
 Wroclaw_random <- get_random_noise(Wroclaw_ts_1, Wroclaw_seasonal)
 get_ACF_PACF(Wroclaw_random, "Wroclaw, Poland", 20)
 
-Melbourne_ts_1 <- city_ts_1(daily_ag_Melbourne)
+Melbourne_ts_1 <- City_ts_1(daily_ag_Melbourne)
 Melbourne_seasonal <- get_seasonal_component(Melbourne_ts_1)
 Melbourne_random <- get_random_noise(Melbourne_ts_1, Melbourne_seasonal)
 get_ACF_PACF(Melbourne_random, "Melbourne, Australia", 20)
@@ -92,3 +92,13 @@ ar_NYC <- ar(NYC_random, ic = "aic")
 ar_NYC
 ar_Delhi <- ar(Delhi_random, ic = "aic")
 ar_Delhi
+
+
+########### FORECASTING
+Wroclaw_forecast <- forecast(ar_Wroclaw, h =1)
+autoplot(Wroclaw_forecast)  +
+  coord_cartesian(xlim = c(2019, 2020))
+
+ts.plot(Wroclaw_ts_1, Wroclaw_forecast)
+points(Wroclaw_forecast, col = 2, type = "l")
+
