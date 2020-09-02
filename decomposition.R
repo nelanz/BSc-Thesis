@@ -23,6 +23,8 @@ daily_ag_Melbourne_no_feb <- daily_ag_Melbourne %>%
 
 Melbourne_ts_1 <- ts(daily_ag_Melbourne_no_feb$T2M, start = 1985, frequency = 365)
 
+
+
 # # trend
 # create_MA <- function(City_ts, MA_order) {
 #   MA <- stats::filter(City_ts, sides = 2, filter = rep(1/MA_order, MA_order))
@@ -61,6 +63,7 @@ seasonal_Melbourne <- colMeans(matrix_Melbourne_ts, na.rm = T)
 # autoplot(as.ts(seasonal_Melbourne))
 ts.plot(rep(seasonal_Melbourne, 34))
 
+
 # random noise
 random_Wroclaw <- Wroclaw_ts_1 - seasonal_Wroclaw
 ts.plot(random_Wroclaw)
@@ -77,35 +80,46 @@ mtext("Random noise component in Wroclaw, Poland", outer = T, cex = 1, line = -1
 
 par(mfrow = c(1,1))
 
-
 random_Melbourne <- Melbourne_ts_1 - seasonal_Melbourne
-ts.plot(random_Melbourne)
-acf(as.ts(random_Melbourne), plot = T, na.action = na.pass, lag.max = 300)
+random_Melbourne_ts <- as.ts(random_Melbourne, frequency = 365)
+Acf(random_Melbourne_ts, lag.max = 365)
+Pacf(random_Melbourne_ts, lag.max = 30)
 
-# reconstruct
-recomposed_Wroclaw <- Wroclaw_ts_1 + Ma_Wroclaw_1_year_ts + seasonal_Wroclaw
-ts.plot(recomposed_Wroclaw)
+ar(random_Melbourne_ts)
 
-#----------one function for decomposition
-decompose_Wroclaw <-  decompose(Wroclaw_ts_1, "additive")
+#### GGPLOT FOR ACF AN PACF
 
-plot(decompose_Wroclaw)
+ACF_Wroclaw_gg <- ggAcf(random_Wroclaw_ts, lag.max = 365) + 
+  labs(title = "ACF for random noise component, lag.max = 365", subtitle = "Wroclaw, Poland")
+  
+PACF_Wroclaw_gg <- ggPacf(random_Wroclaw_ts, lag.max = 15, size = 1.2) +
+  labs(title = "PACF for random noise component, lag.max = 15", subtitle = "Wroclaw, Poland")
 
-autoplot(decompose_Wroclaw$seasonal, colour = "purple", size = 1) +
-  labs(title = "Seasonal component", subtitle = "Wroclaw, Poland", x = "Date", y = "Temperature") 
+grid.arrange(ACF_Wroclaw_gg, PACF_Wroclaw_gg, ncol = 2)
 
-autoplot(decompose_Wroclaw$random, colour = "#6E016B") +
-  labs(title = "Random noise component", subtitle = "Wroclaw, Poland", x = "Date", y = "Temperature") 
 
-par(mfrow = c(1,2))
-Acf(ts(decompose_Wroclaw$random, frequency = 1), na.action = na.pass, lag.max = 30,
-    main = "30 days")
-Acf(ts(decompose_Wroclaw$random), na.action = na.pass, lag.max = 365, main = "1 year", font = 1)
 
-mtext("ACF of random fluctuations in Wroclaw, Poland", outer = T, cex = 1, line = -1, font=2)
 
-decompose_Melbourne <- decompose(Melbourne_ts_1, "additive")
-autoplot(decompose_Melbourne$seasonal)
+# #----------one function for decomposition
+# decompose_Wroclaw <-  decompose(Wroclaw_ts_1, "additive")
+# 
+# plot(decompose_Wroclaw)
+# 
+# autoplot(decompose_Wroclaw$seasonal, colour = "purple", size = 1) +
+#   labs(title = "Seasonal component", subtitle = "Wroclaw, Poland", x = "Date", y = "Temperature") 
+# 
+# autoplot(decompose_Wroclaw$random, colour = "#6E016B") +
+#   labs(title = "Random noise component", subtitle = "Wroclaw, Poland", x = "Date", y = "Temperature") 
+# 
+# par(mfrow = c(1,2))
+# Acf(ts(decompose_Wroclaw$random, frequency = 1), na.action = na.pass, lag.max = 30,
+#     main = "30 days")
+# Acf(ts(decompose_Wroclaw$random), na.action = na.pass, lag.max = 365, main = "1 year", font = 1)
+# 
+# mtext("ACF of random fluctuations in Wroclaw, Poland", outer = T, cex = 1, line = -1, font=2)
+# 
+# decompose_Melbourne <- decompose(Melbourne_ts_1, "additive")
+# autoplot(decompose_Melbourne$seasonal)
 
 #-------------AR model
 Wroclaw_ar <- ar(random_Wroclaw_ts, aic = T)
@@ -134,10 +148,6 @@ Wroclaw_auto_arima <- auto.arima(random_Wroclaw, ic = "aic")
 Acf(Wroclaw_auto_arima$residuals)
 plot(Wroclaw_auto_arima$residuals)
 
-Wroclaw_forecast_ar <- forecast(Wroclaw_ar, h = 30)
-Wroclaw_forecast_ar$fitted
-
-plot(Wroclaw_forecast_ar)
 
 Wroclaw_forecast_auto_arima <- forecast(Wroclaw_auto_arima, h = 30)
 Wroclaw_forecast_auto_arima$mean
@@ -150,3 +160,9 @@ autoplot(Wroclaw_forecast_ar) +
 
 autoplot(Wroclaw_forecast_auto_arima)+
   coord_cartesian(xlim = c(2019, 2020))
+
+Wroclaw_forecast_ar <- forecast(Wroclaw_ar, h = 1)
+
+plot(Wroclaw_forecast_ar)
+
+Wroclaw_forecast_ar
