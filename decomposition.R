@@ -13,6 +13,7 @@ Wroclaw_ts_1 <- ts(daily_ag_Wroclaw_no_feb$T2M, start = 1985, frequency = 365)
 
 frequency(Wroclaw_ts_1)
 
+
 #------ Melbourne
 daily_ag_Melbourne_feb <- daily_ag_Melbourne %>%
   filter(DD == 29 & MM == 2)
@@ -52,7 +53,7 @@ Melbourne_ts_1 <- ts(daily_ag_Melbourne_no_feb$T2M, start = 1985, frequency = 36
 
 # seasonal factor
 
-matrix_Wroclaw_ts <- t(matrix(data= Wroclaw_ts_1, nrow = 365))
+matrix_Wroclaw_ts <- t(matrix(data= Wroclaw_xts, nrow = 365))
 seasonal_Wroclaw <- colMeans(matrix_Wroclaw_ts, na.rm = T)
 ts.plot(rep(seasonal_Wroclaw, 34))
 

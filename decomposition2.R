@@ -5,13 +5,18 @@ City_ts_1 <- function(City_ag) {
   daily_ag_feb <- City_ag %>%
     filter(DD == 29 & MM == 2)
   
+  # inds <- seq(as.Date("1985-01-01"), as.Date("2015-10-14"), by = "day")
+  
   daily_ag_City_no_feb <- City_ag %>%
     filter(!YYYYMMDD %in% daily_ag_feb$YYYYMMDD) %>%
     select(YYYYMMDD, T2M)
   
-  City_ts_1 <- ts(daily_ag_City_no_feb$T2M, start = 1985, frequency = 365)
+  City_ts_1 <- zoo(daily_ag_City_no_feb$T2M, daily_ag_City_no_feb$YYYYMMDD, frequency = 365)
+  # City_ts_1 <- ts(daily_ag_City_no_feb$T2M, start = c(1985, 1), frequency = 365)
   return(City_ts_1)
 }
+
+
 
 ######### Function for the seasonal extraction
 get_seasonal_component <- function(City_ts_1) {
@@ -24,7 +29,7 @@ get_seasonal_component <- function(City_ts_1) {
 ####### random noise 
 get_random_noise <- function(city_ts_1, seasonal_component) {
   random <- city_ts_1 - seasonal_component
-  return(as.ts(random, frequency = 365))
+  return(random)
 }
 
 ####### ACF and PACF
@@ -39,7 +44,8 @@ get_ACF_PACF <- function(random_noise, City_name, pacf_lag) {
 }
 
 ###### realisation
-Wroclaw_ts_1 <- City_ts_1(daily_ag_Wroclaw)
+
+Wroclaw_ts_1 <- Wroclaw_xts
 Wroclaw_seasonal <- get_seasonal_component(Wroclaw_ts_1)
 Wroclaw_random <- get_random_noise(Wroclaw_ts_1, Wroclaw_seasonal)
 get_ACF_PACF(Wroclaw_random, "Wroclaw, Poland", 20)
@@ -74,11 +80,11 @@ get_ACF_PACF(Delhi_random, "New Delhi, India", 20)
 
 par(mfrow = c(1,1))
 ar_Wroclaw <- stats::ar(Wroclaw_random, ic = "aic")
-
+ar_Wroclaw
 autoplot(ar_Wroclaw, data=random_Wroclaw)
 
 Wroclaw_fit <- ar_Wroclaw$resid
-ts.plot(Wroclaw_random, col = "gray60", tile = "AR model ")
+plot(Wroclaw_random, col = "gray60", tile = "AR model ")
 points(Wroclaw_fit, type = 'l', col = "red3", lty = 2)
 
 
@@ -95,10 +101,17 @@ ar_Delhi
 
 
 ########### FORECASTING
-Wroclaw_forecast <- forecast(ar_Wroclaw, h =1)
+Wroclaw_forecast <- forecast(ar_Wroclaw, h =30)
 autoplot(Wroclaw_forecast)  +
   coord_cartesian(xlim = c(2019, 2020))
 
 ts.plot(Wroclaw_ts_1, Wroclaw_forecast)
 points(Wroclaw_forecast, col = 2, type = "l")
 
+test <- Arima(Wroclaw_ts_1, order = c(7, 1, 0))
+forecast_Wr <- forecast(test, h = 90)
+forecast_Wr$mean
+autoplot(forecast_Wr)
+
+test
+?Arima
