@@ -45,7 +45,7 @@ get_ACF_PACF <- function(random_noise, City_name, pacf_lag) {
 
 ###### realisation
 
-Wroclaw_ts_1 <- Wroclaw_xts
+Wroclaw_ts_1 <- City_ts_1(daily_ag_Wroclaw)
 Wroclaw_seasonal <- get_seasonal_component(Wroclaw_ts_1)
 Wroclaw_random <- get_random_noise(Wroclaw_ts_1, Wroclaw_seasonal)
 get_ACF_PACF(Wroclaw_random, "Wroclaw, Poland", 20)
@@ -81,7 +81,7 @@ get_ACF_PACF(Delhi_random, "New Delhi, India", 20)
 par(mfrow = c(1,1))
 ar_Wroclaw <- stats::ar(Wroclaw_random, ic = "aic")
 ar_Wroclaw
-autoplot(ar_Wroclaw, data=random_Wroclaw)
+autoplot(ar_Wroclaw)
 
 Wroclaw_fit <- ar_Wroclaw$resid
 plot(Wroclaw_random, col = "gray60", tile = "AR model ")
@@ -101,7 +101,7 @@ ar_Delhi
 
 
 ########### FORECASTING
-Wroclaw_forecast <- forecast(ar_Wroclaw, h =30)
+Wroclaw_forecast <- forecast(ar_Wroclaw)
 autoplot(Wroclaw_forecast)  +
   coord_cartesian(xlim = c(2019, 2020))
 
@@ -115,3 +115,61 @@ autoplot(forecast_Wr)
 
 test
 ?Arima
+
+
+### zbior uczacy i testowy
+make_trainig_set <- function(City_ag) {
+
+    daily_ag_feb <- City_ag %>%
+      filter(DD == 29 & MM == 2)
+  
+    daily_ag_City_no_feb <- City_ag %>%
+      filter(!YYYYMMDD %in% daily_ag_feb$YYYYMMDD) %>%
+      select(YYYYMMDD, T2M) %>%
+      filter(YYYYMMDD  >= "2019-09-01" & YYYYMMDD <= "2019-12-31")
+    
+    return(xts(x = daily_ag_City_no_feb$T2M, order.by =daily_ag_City_no_feb$YYYYMMDD, frequency = 365))
+    
+}
+
+trainig_ts_Wroclaw <- make_trainig_set(daily_ag_Wroclaw)
+
+test <- ts_ts(trainig_ts_Wroclaw)
+
+arima_model_train_Wroclaw <- Arima(Wroclaw_ts_1, order = c(7, 1, 0))
+arima_model_train_Wroclaw
+forecast_Wr <- forecast(arima_model_train_Wroclaw, h =30)
+
+arima_model_train_Wroclaw$coef
+
+##### plotting ar models
+
+plot_ar_model <- function(City_ts, City_name) {
+  
+  City_seasonal <- get_seasonal_component(City_ts)
+  City_random <- get_random_noise(City_ts, City_seasonal) 
+  ar_model <- ar(City_random, ic = "aic")
+  order <- ar_model$order
+  arima_model<- Arima(City_ts, order = c(order, 1, 0))
+  
+  autoplot(arima_model, size = 2, col = "gray65", fitted.colour = "red", fitted.size = 1) +
+    coord_cartesian(xlim = c(2019.5, 2020)) +
+    labs(title = paste0("Fitted AR(", order,") model"), subtitle = City_name, x = "Date", y = "Temperature")
+}
+  
+ar_plot_Wroclaw <- plot_ar_model(Wroclaw_ts_1, "Wroclaw, Poland")
+ar_plot_Melbourne <- plot_ar_model(Melbourne_ts_1, "Melbourne, Australia")
+ar_plot_Reykjavik <- plot_ar_model(Reykjavik_ts_1, "Reykjavik, Iceland")  
+ar_plot_Rio <- plot_ar_model(Rio_ts_1, "Rio de Janeiro, Brasil")
+ar_plot_NYC <- plot_ar_model(NYC_ts_1, "New York City, USA")
+ar_plot_Delhi <- plot_ar_model(Delhi_ts_1, "New Delhi, India")
+
+grid.arrange(ncol = 2, nrow = 3, ar_plot_Wroclaw, ar_plot_Reykjavik, ar_plot_Melbourne,
+             ar_plot_Rio, ar_plot_NYC, ar_plot_Delhi)
+
+
+###### analysing ar models -- residuals
+
+ggtsdisplay(ar_Wroclaw$resid, main = "Residuals of AR(7) model", sub = "Wroclaw, Poland")
+ggtsdisplay(ar_Melbourne$resid)
+?ggtsdisplay

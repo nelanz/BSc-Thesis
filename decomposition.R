@@ -13,6 +13,11 @@ Wroclaw_ts_1 <- ts(daily_ag_Wroclaw_no_feb$T2M, start = 1985, frequency = 365)
 
 frequency(Wroclaw_ts_1)
 
+daily_ag_Wroclaw_no_feb %>%
+  filter(YYYYMMDD  >= "2019-09-01" & YYYYMMDD <= "2019-12-31")
+
+typeof(daily_ag_Wroclaw_no_feb$YYYYMMDD)
+
 
 #------ Melbourne
 daily_ag_Melbourne_feb <- daily_ag_Melbourne %>%
@@ -148,6 +153,8 @@ Wroclaw_auto_arima <- auto.arima(random_Wroclaw, ic = "aic")
 
 Acf(Wroclaw_auto_arima$residuals)
 plot(Wroclaw_auto_arima$residuals)
+
+
 
 
 Wroclaw_forecast_auto_arima <- forecast(Wroclaw_auto_arima, h = 30)

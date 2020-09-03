@@ -82,6 +82,8 @@ Rio_xts <- create_xts(daily_ag_Rio)
 NYC_xts <- create_xts(daily_ag_NYC)
 Delhi_xts <- create_xts(daily_ag_Delhi)
 
+frequency(Wroclaw_xts)
+
 #---------- data exploration
 
 plot_Wroclaw <- autoplot(Wroclaw_xts, ts.col = '#1F78B4') + 
