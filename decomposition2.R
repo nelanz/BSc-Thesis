@@ -11,8 +11,8 @@ City_ts_1 <- function(City_ag) {
     filter(!YYYYMMDD %in% daily_ag_feb$YYYYMMDD) %>%
     select(YYYYMMDD, T2M)
   
-  City_ts_1 <- zoo(daily_ag_City_no_feb$T2M, daily_ag_City_no_feb$YYYYMMDD, frequency = 365)
-  # City_ts_1 <- ts(daily_ag_City_no_feb$T2M, start = c(1985, 1), frequency = 365)
+  # City_ts_1 <- zoo(daily_ag_City_no_feb$T2M, daily_ag_City_no_feb$YYYYMMDD, frequency = 365)
+  City_ts_1 <- ts(daily_ag_City_no_feb$T2M, start = c(1985, 1), frequency = 365)
   return(City_ts_1)
 }
 

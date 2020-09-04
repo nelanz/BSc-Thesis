@@ -12,10 +12,22 @@ pred1 <- c(X_1, X_2, X_3, X_4, X_5)
 comparison_temp_Wroclaw <- get_power(
   community = 'AG',
   lonlat = c(17.0385, 51.1079),
-  dates = c("01.01.2020", "31.01.2020"),
+  dates = c("01.01.2020", "31.03.2020"),
   pars = c('T2M'),
   temporal_average = "DAILY")
 
+
+comparison_df <- comparison_temp_Wroclaw %>%
+  select(YYYYMMDD, T2M)
+# City_ts_1 <- zoo(daily_ag_City_no_feb$T2M, daily_ag_City_no_feb$YYYYMMDD, frequency = 365)
+comparison_ts <- ts(comparison_df$T2M, start = c(2020, 1), frequency = 365)
+
+test <- Arima(comparison_ts, model = Arima_wroclaw)
+
+plot(comparison_ts, col = 2)
+lines(test$fitted)
+
+plot(test$residuals)
 
 Arima_wroclaw <- Arima(Wroclaw_xts, c(7, 1, 0))
 
@@ -98,9 +110,9 @@ mse3 <- ar_sigma * chi3
 mse4 <- ar_sigma * chi4
 mse5 <- ar_sigma * chi5
 
-Ar_fit <- arima(Wroclaw_ts_1, order = c(1, 0, 0))
+Ar_fit <- Arima(Wroclaw_ts_1, order = c(1, 0, 0))
 predict_ar <- predict(Ar_fit)
-predict(Ar_fit, n.ahead = 10)
+predict(Ar_fit, n.ahead = 90)
 
 ######## errors
 sigma_2 <- ar_Wroclaw$var.pred
