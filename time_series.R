@@ -86,27 +86,27 @@ frequency(Wroclaw_xts)
 
 #---------- data exploration
 
-plot_Wroclaw <- autoplot(Wroclaw_xts, ts.col = '#1F78B4') + 
+plot_Wroclaw <- autoplot(Wroclaw_xts, ts.col = "#66C2A5") + 
   labs(x = 'Time', y = 'Temperature', title = 'Wroclaw, Poland') +
   ylim(c(-20, 40))
 
-plot_Reykjavik <- autoplot(Reykjavik_xts, ts.col = '#1F78B4')  + 
+plot_Reykjavik <- autoplot(Reykjavik_xts, ts.col = "#66C2A5")  + 
   labs(x = 'Time', y = 'Temperature', title = 'Reykjavik, Iceland') +
   ylim(c(-20, 40))
 
-plot_Melbourne <- autoplot(Melbourne_xts, ts.col = '#1F78B4') + 
+plot_Melbourne <- autoplot(Melbourne_xts, ts.col = "#66C2A5") + 
   labs(x = 'Time', y = 'Temperature', title = ' Melbourne, Australia') +
   ylim(c(-20, 40))
 
-plot_Rio <- autoplot(Rio_xts, ts.col = '#1F78B4') + 
+plot_Rio <- autoplot(Rio_xts, ts.col = "#66C2A5") + 
   labs(x = 'Time', y = 'Temperature', title = 'Rio de Janeiro, Brasil') +
   ylim(c(-20, 40))
 
-plot_NYC <- autoplot(NYC_xts, ts.col = '#1F78B4') + 
+plot_NYC <- autoplot(NYC_xts, ts.col = "#66C2A5") + 
   labs(x = 'Time', y = 'Temperature', title = 'New York City, USA') +
   ylim(c(-20, 40))
 
-plot_Delhi <- autoplot(Delhi_xts, ts.col = '#1F78B4') + 
+plot_Delhi <- autoplot(Delhi_xts, ts.col = "#66C2A5") + 
   labs(x = 'Time', y = 'Temperature', title = 'New Delhi, India') +
   ylim(c(-20, 40))
 

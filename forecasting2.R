@@ -16,6 +16,9 @@ training_Rykjavik <- get_power(
   pars = c('T2M'),
   temporal_average = "DAILY")
 
+
+training_Rykjavik$YYYYMMDD[training_Rykjavik$T2M == min(training_Rykjavik$T2M)]
+
 # Melbourne, Australia
 training_Melbourne <- get_power(
   community = 'AG',
@@ -23,6 +26,8 @@ training_Melbourne <- get_power(
   dates = c("01.01.2020", "31.03.2020"),
   pars = c('T2M'),
   temporal_average = "DAILY")
+
+training_Melbourne$YYYYMMDD[training_Melbourne$T2M == max(training_Melbourne$T2M)]
 
 # Rio de Janeiro, Brazil
 training_Rio <- get_power(
@@ -68,22 +73,22 @@ training_NYC_xts <- get_training_xts(training_NYC)
 training_Delhi_xts <- get_training_xts(training_Delhi)
 
 order_Wr <- ar_Wroclaw$order
-fit_Wroclaw <- Arima(training_Wroclaw_xts, c(order_Wr, 1, 0))
+fit_Wroclaw <- Arima(Wroclaw_xts, c(order_Wr, 1, 0))
 
 order_Ry <- ar_Reykjavik$order
-fit_Ry <- Arima(training_Rykjavik_xts, c(order_Ry, 1, 0))
+fit_Ry <- Arima(Reykjavik_xts, c(order_Ry, 1, 0))
 
 order_Ml <- ar_Melbourne$order
-fit_Ml <- Arima(training_Melbourne_xts, c(order_Ml, 1, 0))
+fit_Ml <- Arima(Melbourne_xts, c(order_Ml, 1, 0))
 
 order_Rio <- ar_Rio$order
-fit_Rio <- Arima(training_Rio_xts, c(order_Rio, 1 , 0))
+fit_Rio <- Arima(Rio_xts, c(order_Rio, 1 , 0))
 
 order_NYC <- ar_NYC$order
-fit_NYC <- Arima(training_NYC_xts, c(order_NYC, 1, 0))
+fit_NYC <- Arima(NYC_xts, c(order_NYC, 1, 0))
 
 order_Delhi <- ar_Delhi$order
-fit_Delhi <- Arima(training_Delhi_xts, c(order_Delhi, 1, 0))
+fit_Delhi <- Arima(Delhi_xts, c(order_Delhi, 1, 0))
 
 get_forecasting_plots <- function(City_xts, Training_xts, City_fit, City_name) {
   fit <- Arima(Training_xts, model = City_fit)
@@ -115,7 +120,7 @@ plot_Delhi <- get_forecasting_plots(Delhi_xts, training_Delhi_xts, fit_Delhi, "N
 
 ### Get residuals plots
 get_residuals_plots <- function(City_xts, Training_xts, City_fit, City_name) {
-
+  
   fit <- Arima(Training_xts, model = City_fit)
   
   df_res_tmp <- ts_data.frame(fit$residuals)
@@ -124,7 +129,11 @@ get_residuals_plots <- function(City_xts, Training_xts, City_fit, City_name) {
   ggplot(data = df_residuals, aes(x = date, y = res)) +
     geom_line(color = "#E78AC3", size = 1) +
     scale_x_date(date_labels = "%b %y") +
-    labs(title = "Forecast errors", subtitle = City_name, x = "Date", y = "Temperature")
+    labs(title = "Forecast errors", subtitle = City_name, x = "Date", y = "Temperature") +
+    geom_hline(yintercept = sqrt(fit$sigma2), color = "blue", linetype = "dashed") +
+    geom_hline(yintercept = -sqrt(fit$sigma2), color = "blue", linetype = "dashed") +
+    geom_hline(yintercept = 3*sqrt(fit$sigma2), color = "cornflowerblue", linetype = "dashed") +
+    geom_hline(yintercept = -3*sqrt(fit$sigma2), color = "cornflowerblue", linetype = "dashed")
 }
 
 residuals_Wroclaw <- get_residuals_plots(Wroclaw_xts, training_Wroclaw_xts, fit_Wroclaw, "Wroclaw, Poland")
@@ -139,6 +148,14 @@ residuals_Delhi <- get_residuals_plots(Delhi_xts, training_Delhi_xts, fit_Delhi,
 Wroclaw <- grid.arrange(ncol = 2, plot_Wroclaw, residuals_Wroclaw)
 Reykjavik <- grid.arrange(ncol = 2, plot_Reykjavik, residuals_Reykjavik)
 Melbourne <- grid.arrange(ncol = 2, plot_Melbourne, residuals_Melbourne)
-Rio <- grid.arrange(ncol = 2, plot_Rio, residuals_Rio)
+grid.arrange(ncol = 2, plot_Rio, residuals_Rio)
 NYC <- grid.arrange(ncol = 2, plot_NYC, residuals_NYC)
 Delhi <- grid.arrange(ncol = 2, plot_Delhi, residuals_Delhi)
+
+
+fit <- Arima(training_Delhi_xts, model = fit_Ml)
+
+df_res_tmp <- ts_data.frame(fit$residuals)
+df_residuals <- data.frame(date = index(training_Delhi_xts), res = df_res_tmp$value)
+plot(x = df_residuals$date, y = df_residuals$res, type = 'l')
+lines(sqrt(fit$sigma2))

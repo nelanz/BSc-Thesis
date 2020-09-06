@@ -50,6 +50,9 @@ Wroclaw_seasonal <- get_seasonal_component(Wroclaw_ts_1)
 Wroclaw_random <- get_random_noise(Wroclaw_ts_1, Wroclaw_seasonal)
 get_ACF_PACF(Wroclaw_random, "Wroclaw, Poland", 20)
 
+autoplot(Wroclaw_random, colour = "#66C2A5") +
+  labs(x = "Date", y= "Temperature", title = "Random noise component", subtitle = "Wroclaw, Poland")
+
 Melbourne_ts_1 <- City_ts_1(daily_ag_Melbourne)
 Melbourne_seasonal <- get_seasonal_component(Melbourne_ts_1)
 Melbourne_random <- get_random_noise(Melbourne_ts_1, Melbourne_seasonal)
@@ -152,7 +155,7 @@ plot_ar_model <- function(City_ts, City_name) {
   order <- ar_model$order
   arima_model<- Arima(City_ts, order = c(order, 1, 0))
   
-  autoplot(arima_model, size = 2, col = "gray65", fitted.colour = "red", fitted.size = 1) +
+  autoplot(arima_model, size = 1.5, col = "gray65", fitted.colour = "#FC8D62", fitted.size = 1) +
     coord_cartesian(xlim = c(2019.5, 2020)) +
     labs(title = paste0("Fitted AR(", order,") model"), subtitle = City_name, x = "Date", y = "Temperature")
 }
