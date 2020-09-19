@@ -69,6 +69,8 @@ seasonal_Melbourne <- colMeans(matrix_Melbourne_ts, na.rm = T)
 # autoplot(as.ts(seasonal_Melbourne))
 ts.plot(rep(seasonal_Melbourne, 34))
 
+autoplot(seasonal_Wroclaw)
+
 
 # random noise
 random_Wroclaw <- Wroclaw_ts_1 - seasonal_Wroclaw

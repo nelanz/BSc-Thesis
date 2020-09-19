@@ -50,6 +50,9 @@ Wroclaw_seasonal <- get_seasonal_component(Wroclaw_ts_1)
 Wroclaw_random <- get_random_noise(Wroclaw_ts_1, Wroclaw_seasonal)
 get_ACF_PACF(Wroclaw_random, "Wroclaw, Poland", 20)
 
+autoplot(as.ts(Wroclaw_seasonal), colour = "#8DA0CB", size = 1.5) +
+  labs(title = "Seasonal component", subtitle = "Wroclaw, Poland", x = "Day", y = "Temperature")
+
 autoplot(Wroclaw_random, colour = "#66C2A5") +
   labs(x = "Date", y= "Temperature", title = "Random noise component", subtitle = "Wroclaw, Poland")
 
@@ -58,10 +61,14 @@ Melbourne_seasonal <- get_seasonal_component(Melbourne_ts_1)
 Melbourne_random <- get_random_noise(Melbourne_ts_1, Melbourne_seasonal)
 get_ACF_PACF(Melbourne_random, "Melbourne, Australia", 20)
 
+autoplot(as.ts(Melbourne_seasonal), colour = "#8DA0CB", size = 1.5)
+
 Reykjavik_ts_1 <- City_ts_1(daily_ag_Rykjavik)
 Reykjavik_seasonal <- get_seasonal_component(Reykjavik_ts_1)
 Reykjavik_random <- get_random_noise(Reykjavik_ts_1, Reykjavik_seasonal)
 get_ACF_PACF(Reykjavik_random, "Reykjavik, Iceland", 20)
+
+autoplot(as.ts(Reykjavik_seasonal), colour = "#8DA0CB", size = 1.5)
 
 Rio_ts_1 <- City_ts_1(daily_ag_Rio)
 Rio_seasonal <- get_seasonal_component(Rio_ts_1)
@@ -101,6 +108,20 @@ ar_NYC <- ar(NYC_random, ic = "aic")
 ar_NYC
 ar_Delhi <- ar(Delhi_random, ic = "aic")
 ar_Delhi
+
+plot(ar_Wroclaw, main = "Inverse AR roots, Wroclaw, Poland")
+
+plot_inverse_roots <- function(ar_City, City_name) {
+  plot(ar_City, main = paste0(City_name))
+}
+
+par(mfrow = c(3, 2))
+plot_inverse_roots(ar_Wroclaw, "Wroclaw, Poland, AR(7)")
+plot_inverse_roots(ar_Reykjavik, "Reykjavik, Iceland, AR(5)")
+plot_inverse_roots(ar_Melbourne, "Melbourne, Australia, AR(32)")
+plot_inverse_roots(ar_Rio, "Rio de Janeiro, Brasil, AR(32)")
+plot_inverse_roots(ar_NYC, "New York City, USA, AR(20)")
+plot_inverse_roots(ar_Delhi, "New Delhi, India, AR(28)")
 
 
 ########### FORECASTING
